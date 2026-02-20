@@ -46,7 +46,7 @@ export function deleteError(id: string) {
 
 export function getTeamMembers(): string[] {
   const data = localStorage.getItem(TEAM_KEY);
-  return data ? JSON.parse(data) : ["Nicolas Gomes", "Sublíder"];
+  return data ? JSON.parse(data) : ["EMERSON", "SANDRA", "MATEUS"];
 }
 
 export function saveTeamMembers(members: string[]) {
