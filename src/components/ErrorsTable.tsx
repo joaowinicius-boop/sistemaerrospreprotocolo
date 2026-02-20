@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -23,8 +22,7 @@ const ErrorsTable = ({ errors, teamMembers, onDelete, onUpdate }: ErrorsTablePro
   if (errors.length === 0) {
     return (
       <div className="bg-card rounded-lg border p-12 text-center text-muted-foreground">
-        <p className="text-lg">Nenhum erro reportado ainda.</p>
-        <p className="text-sm mt-1">Clique em "Reportar Novo Erro" para começar.</p>
+        <p className="text-lg">Nenhum registro nesta aba.</p>
       </div>
     );
   }
@@ -48,10 +46,10 @@ const ErrorsTable = ({ errors, teamMembers, onDelete, onUpdate }: ErrorsTablePro
           <TableBody>
             {errors.map((error) => (
               <TableRow key={error.id} className="animate-fade-in">
-                <TableCell className="font-medium">{error.clientName}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{error.processId}</TableCell>
+                <TableCell className="font-medium">{error.client_name}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{error.process_id}</TableCell>
                 <TableCell className="max-w-[250px] truncate text-sm">{error.description}</TableCell>
-                <TableCell className="text-sm">{error.reportedBy}</TableCell>
+                <TableCell className="text-sm">{error.reported_by}</TableCell>
                 <TableCell>
                   <Select value={error.status} onValueChange={(v) => onUpdate(error.id, { status: v as ErrorReport["status"] })}>
                     <SelectTrigger className="w-[130px] h-8 text-xs">
@@ -68,8 +66,8 @@ const ErrorsTable = ({ errors, teamMembers, onDelete, onUpdate }: ErrorsTablePro
                 </TableCell>
                 <TableCell>
                   <Select
-                    value={error.solutionResponsible || "none"}
-                    onValueChange={(v) => onUpdate(error.id, { solutionResponsible: v === "none" ? "" : v })}
+                    value={error.solution_responsible || "none"}
+                    onValueChange={(v) => onUpdate(error.id, { solution_responsible: v === "none" ? "" : v })}
                   >
                     <SelectTrigger className="w-[140px] h-8 text-xs">
                       <SelectValue placeholder="Selecionar" />
@@ -83,7 +81,7 @@ const ErrorsTable = ({ errors, teamMembers, onDelete, onUpdate }: ErrorsTablePro
                   </Select>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                  {new Date(error.createdAt).toLocaleDateString("pt-BR")}
+                  {new Date(error.created_at).toLocaleDateString("pt-BR")}
                 </TableCell>
                 <TableCell className="text-center">
                   <AlertDialog>
@@ -96,7 +94,7 @@ const ErrorsTable = ({ errors, teamMembers, onDelete, onUpdate }: ErrorsTablePro
                       <AlertDialogHeader>
                         <AlertDialogTitle>Excluir registro?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Esta ação não pode ser desfeita. O erro do cliente "{error.clientName}" será removido permanentemente.
+                          Esta ação não pode ser desfeita. O erro do cliente "{error.client_name}" será removido permanentemente.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

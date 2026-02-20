@@ -7,27 +7,22 @@ import { toast } from "sonner";
 
 interface TeamSettingsProps {
   teamMembers: string[];
-  onUpdate: (members: string[]) => void;
+  onAdd: (name: string) => Promise<void>;
+  onRemove: (name: string) => Promise<void>;
 }
 
-const TeamSettings = ({ teamMembers, onUpdate }: TeamSettingsProps) => {
+const TeamSettings = ({ teamMembers, onAdd, onRemove }: TeamSettingsProps) => {
   const [newName, setNewName] = useState("");
 
-  const handleAdd = () => {
-    const name = newName.trim();
+  const handleAdd = async () => {
+    const name = newName.trim().toUpperCase();
     if (!name) return;
     if (teamMembers.includes(name)) {
       toast.error("Este membro já existe.");
       return;
     }
-    onUpdate([...teamMembers, name]);
+    await onAdd(name);
     setNewName("");
-    toast.success("Membro adicionado!");
-  };
-
-  const handleRemove = (name: string) => {
-    onUpdate(teamMembers.filter((m) => m !== name));
-    toast.success("Membro removido.");
   };
 
   return (
@@ -57,7 +52,7 @@ const TeamSettings = ({ teamMembers, onUpdate }: TeamSettingsProps) => {
             {teamMembers.map((m) => (
               <div key={m} className="flex items-center justify-between bg-muted rounded-md px-3 py-2">
                 <span className="text-sm font-medium">{m}</span>
-                <button onClick={() => handleRemove(m)} className="text-destructive hover:text-destructive/80 transition-colors">
+                <button onClick={() => onRemove(m)} className="text-destructive hover:text-destructive/80 transition-colors">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
