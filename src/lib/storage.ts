@@ -1,54 +1,62 @@
+import { supabase } from "@/integrations/supabase/client";
+
 export interface ErrorReport {
   id: string;
-  clientName: string;
-  processId: string;
+  client_name: string;
+  process_id: string;
   description: string;
-  reportedBy: string;
+  reported_by: string;
   status: "Pendente" | "Em Análise" | "Resolvido";
-  solutionResponsible: string;
-  createdAt: string;
+  solution_responsible: string;
+  created_at: string;
 }
 
-const ERRORS_KEY = "ng_errors";
-const TEAM_KEY = "ng_team_members";
-
-export function getErrors(): ErrorReport[] {
-  const data = localStorage.getItem(ERRORS_KEY);
-  return data ? JSON.parse(data) : [];
+export async function getErrors(): Promise<ErrorReport[]> {
+  const { data, error } = await supabase
+    .from("errors")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as ErrorReport[];
 }
 
-export function saveErrors(errors: ErrorReport[]) {
-  localStorage.setItem(ERRORS_KEY, JSON.stringify(errors));
+export async function addError(
+  error: Pick<ErrorReport, "client_name" | "process_id" | "description" | "reported_by">
+): Promise<ErrorReport> {
+  const { data, error: err } = await supabase
+    .from("errors")
+    .insert(error)
+    .select()
+    .single();
+  if (err) throw err;
+  return data as ErrorReport;
 }
 
-export function addError(error: Omit<ErrorReport, "id" | "createdAt" | "status" | "solutionResponsible">): ErrorReport {
-  const errors = getErrors();
-  const newError: ErrorReport = {
-    ...error,
-    id: crypto.randomUUID(),
-    status: "Pendente",
-    solutionResponsible: "",
-    createdAt: new Date().toISOString(),
-  };
-  errors.unshift(newError);
-  saveErrors(errors);
-  return newError;
+export async function updateError(id: string, updates: Partial<ErrorReport>) {
+  const { error } = await supabase.from("errors").update(updates).eq("id", id);
+  if (error) throw error;
 }
 
-export function updateError(id: string, updates: Partial<ErrorReport>) {
-  const errors = getErrors().map((e) => (e.id === id ? { ...e, ...updates } : e));
-  saveErrors(errors);
+export async function deleteError(id: string) {
+  const { error } = await supabase.from("errors").delete().eq("id", id);
+  if (error) throw error;
 }
 
-export function deleteError(id: string) {
-  saveErrors(getErrors().filter((e) => e.id !== id));
+export async function getTeamMembers(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("name")
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((d: { name: string }) => d.name);
 }
 
-export function getTeamMembers(): string[] {
-  const data = localStorage.getItem(TEAM_KEY);
-  return data ? JSON.parse(data) : ["EMERSON", "SANDRA", "MATEUS"];
+export async function addTeamMember(name: string) {
+  const { error } = await supabase.from("team_members").insert({ name });
+  if (error) throw error;
 }
 
-export function saveTeamMembers(members: string[]) {
-  localStorage.setItem(TEAM_KEY, JSON.stringify(members));
+export async function removeTeamMember(name: string) {
+  const { error } = await supabase.from("team_members").delete().eq("name", name);
+  if (error) throw error;
 }

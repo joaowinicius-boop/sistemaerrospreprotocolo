@@ -21,19 +21,28 @@ const ReportErrorModal = ({ teamMembers, onErrorAdded }: ReportErrorModalProps) 
   const [description, setDescription] = useState("");
   const [reportedBy, setReportedBy] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!clientName.trim() || !processId.trim() || !description.trim() || !reportedBy) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
-    addError({ clientName: clientName.trim(), processId: processId.trim(), description: description.trim(), reportedBy });
-    toast.success("Erro reportado com sucesso!");
-    setClientName("");
-    setProcessId("");
-    setDescription("");
-    setReportedBy("");
-    setOpen(false);
-    onErrorAdded();
+    try {
+      await addError({
+        client_name: clientName.trim(),
+        process_id: processId.trim(),
+        description: description.trim(),
+        reported_by: reportedBy,
+      });
+      toast.success("Erro reportado com sucesso!");
+      setClientName("");
+      setProcessId("");
+      setDescription("");
+      setReportedBy("");
+      setOpen(false);
+      onErrorAdded();
+    } catch {
+      toast.error("Erro ao salvar.");
+    }
   };
 
   return (
