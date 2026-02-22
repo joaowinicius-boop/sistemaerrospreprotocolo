@@ -4,6 +4,7 @@ import StatsCards from "@/components/StatsCards";
 import ReportErrorModal from "@/components/ReportErrorModal";
 import TeamSettings from "@/components/TeamSettings";
 import ErrorsTable from "@/components/ErrorsTable";
+import PerformanceDashboard from "@/components/PerformanceDashboard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getErrors, deleteError, updateError, getTeamMembers, addTeamMember, removeTeamMember } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
@@ -90,6 +91,7 @@ const Index = () => {
       <DashboardHeader />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <StatsCards errors={errors} />
+        <PerformanceDashboard errors={errors} />
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-foreground">Registros de Erros</h2>
           <div className="flex gap-3">
@@ -110,7 +112,7 @@ const Index = () => {
             <ErrorsTable errors={pendingErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} />
           </TabsContent>
           <TabsContent value="resolvidos">
-            <ErrorsTable errors={resolvedErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} />
+            <ErrorsTable errors={resolvedErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} showSearch />
           </TabsContent>
         </Tabs>
       </main>

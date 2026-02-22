@@ -6,11 +6,11 @@ const DashboardHeader = () => {
       <img
         src={logo}
         alt="Nicolas Gomes Advogado"
-        className="w-12 h-12 rounded-full object-cover border-2 border-primary-foreground/30 bg-card"
+        className="w-12 h-12 rounded-full object-cover border-2 border-primary-foreground/30 bg-card flex-shrink-0"
       />
       <div>
-        <h1 className="text-xl font-bold tracking-tight">Escritório Nicolas Gomes</h1>
-        <p className="text-sm text-primary-foreground/70">Sistema de Gestão de Erros</p>
+        <h1 className="text-xl font-bold tracking-tight">Sistema de Gestão de Erros — Pré-Protocolo</h1>
+        <p className="text-sm text-primary-foreground/70">Escritório Nicolas Gomes</p>
       </div>
     </header>
   );
