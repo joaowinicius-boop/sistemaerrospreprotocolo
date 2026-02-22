@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          notes: string
           process_id: string
           reported_by: string
           solution_responsible: string
@@ -30,6 +31,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          notes?: string
           process_id: string
           reported_by: string
           solution_responsible?: string
@@ -40,6 +42,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          notes?: string
           process_id?: string
           reported_by?: string
           solution_responsible?: string

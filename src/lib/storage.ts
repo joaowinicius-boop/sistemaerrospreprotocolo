@@ -9,6 +9,7 @@ export interface ErrorReport {
   status: "Pendente" | "Em Análise" | "Resolvido";
   solution_responsible: string;
   created_at: string;
+  notes: string;
 }
 
 export async function getErrors(): Promise<ErrorReport[]> {
