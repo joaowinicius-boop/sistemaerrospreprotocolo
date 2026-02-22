@@ -10,6 +10,7 @@ export interface ErrorReport {
   solution_responsible: string;
   created_at: string;
   notes: string;
+  created_by: string | null;
 }
 
 export async function getErrors(): Promise<ErrorReport[]> {
@@ -22,7 +23,7 @@ export async function getErrors(): Promise<ErrorReport[]> {
 }
 
 export async function addError(
-  error: Pick<ErrorReport, "client_name" | "process_id" | "description" | "reported_by">
+  error: Pick<ErrorReport, "client_name" | "process_id" | "description" | "reported_by"> & { created_by: string }
 ): Promise<ErrorReport> {
   const { data, error: err } = await supabase
     .from("errors")

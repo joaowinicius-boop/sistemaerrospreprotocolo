@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { addError } from "@/lib/storage";
@@ -12,17 +11,18 @@ import { toast } from "sonner";
 interface ReportErrorModalProps {
   teamMembers: string[];
   onErrorAdded: () => void;
+  currentUserName: string;
+  currentUserId: string;
 }
 
-const ReportErrorModal = ({ teamMembers, onErrorAdded }: ReportErrorModalProps) => {
+const ReportErrorModal = ({ teamMembers, onErrorAdded, currentUserName, currentUserId }: ReportErrorModalProps) => {
   const [open, setOpen] = useState(false);
   const [clientName, setClientName] = useState("");
   const [processId, setProcessId] = useState("");
   const [description, setDescription] = useState("");
-  const [reportedBy, setReportedBy] = useState("");
 
   const handleSubmit = async () => {
-    if (!clientName.trim() || !processId.trim() || !description.trim() || !reportedBy) {
+    if (!clientName.trim() || !processId.trim() || !description.trim()) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -31,13 +31,13 @@ const ReportErrorModal = ({ teamMembers, onErrorAdded }: ReportErrorModalProps) 
         client_name: clientName.trim(),
         process_id: processId.trim(),
         description: description.trim(),
-        reported_by: reportedBy,
+        reported_by: currentUserName,
+        created_by: currentUserId,
       });
       toast.success("Erro reportado com sucesso!");
       setClientName("");
       setProcessId("");
       setDescription("");
-      setReportedBy("");
       setOpen(false);
       onErrorAdded();
     } catch {
@@ -69,18 +69,9 @@ const ReportErrorModal = ({ teamMembers, onErrorAdded }: ReportErrorModalProps) 
             <Label>Descrição detalhada do erro *</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descreva o erro encontrado..." rows={4} />
           </div>
-          <div>
-            <Label>Responsável pelo Reporte *</Label>
-            <Select value={reportedBy} onValueChange={setReportedBy}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o responsável" />
-              </SelectTrigger>
-              <SelectContent>
-                {teamMembers.map((m) => (
-                  <SelectItem key={m} value={m}>{m}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="bg-muted/50 rounded-md p-3 text-sm">
+            <span className="text-muted-foreground">Reportado por: </span>
+            <span className="font-medium">{currentUserName}</span>
           </div>
           <Button onClick={handleSubmit} className="w-full">Enviar Reporte</Button>
         </div>

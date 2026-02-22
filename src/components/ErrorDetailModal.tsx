@@ -26,9 +26,7 @@ const ErrorDetailModal = ({ error, open, onOpenChange, onUpdate }: ErrorDetailMo
   const [saving, setSaving] = useState(false);
 
   const handleOpen = (isOpen: boolean) => {
-    if (isOpen && error) {
-      setNotes(error.notes || "");
-    }
+    if (isOpen && error) setNotes(error.notes || "");
     onOpenChange(isOpen);
   };
 
@@ -53,9 +51,7 @@ const ErrorDetailModal = ({ error, open, onOpenChange, onUpdate }: ErrorDetailMo
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             Detalhes do Erro
-            <Badge variant="outline" className={statusColors[error.status]}>
-              {error.status}
-            </Badge>
+            <Badge variant="outline" className={statusColors[error.status]}>{error.status}</Badge>
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
@@ -69,7 +65,7 @@ const ErrorDetailModal = ({ error, open, onOpenChange, onUpdate }: ErrorDetailMo
               <p className="font-medium text-foreground">{error.process_id}</p>
             </div>
             <div className="space-y-1">
-              <Label className="text-muted-foreground text-xs">Reportado por</Label>
+              <Label className="text-muted-foreground text-xs">Criado por</Label>
               <p className="font-medium text-foreground">{error.reported_by}</p>
             </div>
             <div className="space-y-1">
@@ -79,28 +75,17 @@ const ErrorDetailModal = ({ error, open, onOpenChange, onUpdate }: ErrorDetailMo
             <div className="space-y-1">
               <Label className="text-muted-foreground text-xs">Data de Criação</Label>
               <p className="font-medium text-foreground">
-                {new Date(error.created_at).toLocaleDateString("pt-BR", {
-                  day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
-                })}
+                {new Date(error.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
               </p>
             </div>
           </div>
-
           <div className="space-y-1">
             <Label className="text-muted-foreground text-xs">Descrição Completa</Label>
-            <div className="bg-muted/50 rounded-md p-3 text-sm text-foreground whitespace-pre-wrap">
-              {error.description}
-            </div>
+            <div className="bg-muted/50 rounded-md p-3 text-sm text-foreground whitespace-pre-wrap">{error.description}</div>
           </div>
-
           <div className="space-y-2 border-t pt-4">
             <Label className="font-semibold text-foreground">Anotações da Subliderança</Label>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Instruções, feedback ou observações sobre este caso..."
-              rows={4}
-            />
+            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Instruções, feedback ou observações sobre este caso..." rows={4} />
             <Button onClick={handleSaveNotes} disabled={saving} size="sm" className="gap-2">
               <Save className="w-4 h-4" />
               {saving ? "Salvando..." : "Salvar Anotações"}
