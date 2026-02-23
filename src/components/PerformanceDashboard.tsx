@@ -25,6 +25,7 @@ const RESPONSIBLE_COLORS = [
 ];
 
 const normalize = (name: string) => name.trim().toUpperCase();
+const firstName = (name: string) => normalize(name).split(/\s+/)[0];
 
 const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
   const pieStatusData = useMemo(() => {
@@ -55,8 +56,8 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
   const barData = useMemo(() => {
     const map: Record<string, { display: string; total: number }> = {};
     errors.forEach((e) => {
-      const key = normalize(e.reported_by);
-      if (!map[key]) map[key] = { display: e.reported_by.trim(), total: 0 };
+      const key = firstName(e.reported_by);
+      if (!map[key]) map[key] = { display: key, total: 0 };
       map[key].total += 1;
     });
     return Object.values(map)

@@ -5,7 +5,6 @@ import ReportErrorModal from "@/components/ReportErrorModal";
 import TeamSettings from "@/components/TeamSettings";
 import ErrorsTable from "@/components/ErrorsTable";
 import PerformanceDashboard from "@/components/PerformanceDashboard";
-import AdminPanel from "@/pages/AdminPanel";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getErrors, deleteError, updateError, getTeamMembers, addTeamMember, removeTeamMember } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,7 +100,6 @@ const Index = () => {
           <TabsList>
             <TabsTrigger value="pendentes">Pendentes ({pendingErrors.length})</TabsTrigger>
             <TabsTrigger value="resolvidos">Resolvidos ({resolvedErrors.length})</TabsTrigger>
-            {isAdmin && <TabsTrigger value="admin">Painel Admin</TabsTrigger>}
           </TabsList>
           <TabsContent value="pendentes">
             <ErrorsTable errors={pendingErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} currentUserId={user?.id} isAdmin={isAdmin} />
@@ -109,11 +107,6 @@ const Index = () => {
           <TabsContent value="resolvidos">
             <ErrorsTable errors={resolvedErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} showSearch currentUserId={user?.id} isAdmin={isAdmin} />
           </TabsContent>
-          {isAdmin && (
-            <TabsContent value="admin">
-              <AdminPanel />
-            </TabsContent>
-          )}
         </Tabs>
       </main>
     </div>
