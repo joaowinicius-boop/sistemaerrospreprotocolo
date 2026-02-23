@@ -48,13 +48,34 @@ const Index = () => {
   }, [refresh]);
 
   const handleDelete = async (id: string) => {
-    try { await deleteError(id); toast.success("Registro excluído."); }
-    catch { toast.error("Erro ao excluir."); }
+    try {
+      const target = errors.find((e) => e.id === id);
+      await deleteError(id);
+      if (user) {
+        await supabase.from("audit_log").insert({
+          user_id: user.id,
+          user_name: profile?.display_name || user.email || "",
+          action: "Excluiu ticket",
+          target_description: target ? `${target.client_name} - ${target.process_id}` : id,
+        });
+      }
+      toast.success("Registro excluído.");
+    } catch { toast.error("Erro ao excluir."); }
   };
 
   const handleUpdate = async (id: string, updates: Partial<ErrorReport>) => {
-    try { await updateError(id, updates); }
-    catch { toast.error("Erro ao atualizar."); }
+    try {
+      await updateError(id, updates);
+      if (updates.status === "Resolvido" && user) {
+        const target = errors.find((e) => e.id === id);
+        await supabase.from("audit_log").insert({
+          user_id: user.id,
+          user_name: profile?.display_name || user.email || "",
+          action: "Resolveu ticket",
+          target_description: target ? `${target.client_name} - ${target.process_id}` : id,
+        });
+      }
+    } catch { toast.error("Erro ao atualizar."); }
   };
 
   const handleAddMember = async (name: string) => {
