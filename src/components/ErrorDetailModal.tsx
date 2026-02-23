@@ -81,7 +81,7 @@ const ErrorDetailModal = ({ error, open, onOpenChange, onUpdate }: ErrorDetailMo
           </div>
           <div className="space-y-1">
             <Label className="text-muted-foreground text-xs">Descrição Completa</Label>
-            <div className="bg-muted/50 rounded-md p-3 text-sm text-foreground whitespace-pre-wrap break-words max-h-[300px] overflow-y-auto">{error.description}</div>
+            <div className="bg-muted/50 rounded-md p-3 text-sm text-foreground whitespace-pre-wrap break-words">{error.description}</div>
           </div>
           <div className="space-y-2 border-t pt-4">
             <Label className="font-semibold text-foreground">Anotações da Subliderança</Label>
