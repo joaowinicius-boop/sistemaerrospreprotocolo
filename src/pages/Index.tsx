@@ -65,15 +65,24 @@ const Index = () => {
 
   const handleUpdate = async (id: string, updates: Partial<ErrorReport>) => {
     try {
+      const target = errors.find((e) => e.id === id);
       await updateError(id, updates);
-      if (updates.status === "Resolvido" && user) {
-        const target = errors.find((e) => e.id === id);
+      // If resolving, notify the reporter
+      if (updates.status === "Resolvido" && target && target.created_by && user) {
         await supabase.from("audit_log").insert({
           user_id: user.id,
           user_name: profile?.display_name || user.email || "",
           action: "Resolveu ticket",
-          target_description: target ? `${target.client_name} - ${target.process_id}` : id,
+          target_description: `${target.client_name} - ${target.process_id}`,
         });
+        // Send notification to the reporter
+        if (target.created_by !== user.id) {
+          await supabase.from("notifications").insert({
+            user_id: target.created_by,
+            message: `O erro do cliente ${target.client_name} foi sanado!`,
+            error_id: id,
+          } as any);
+        }
       }
     } catch { toast.error("Erro ao atualizar."); }
   };
@@ -101,7 +110,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader displayName={profile?.display_name || user?.email || ""} isAdmin={isAdmin} onSignOut={signOut} />
+      <DashboardHeader displayName={profile?.display_name || user?.email || ""} isAdmin={isAdmin} onSignOut={signOut} userId={user?.id} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <StatsCards errors={errors} />
         <PerformanceDashboard errors={errors} />

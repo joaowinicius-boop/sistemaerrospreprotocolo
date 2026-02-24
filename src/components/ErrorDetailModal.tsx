@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,10 +25,10 @@ const ErrorDetailModal = ({ error, open, onOpenChange, onUpdate }: ErrorDetailMo
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const handleOpen = (isOpen: boolean) => {
-    if (isOpen && error) setNotes(error.notes || "");
-    onOpenChange(isOpen);
-  };
+  // Fix: sync notes whenever error changes (not just on open)
+  useEffect(() => {
+    if (error) setNotes(error.notes || "");
+  }, [error?.id, error?.notes]);
 
   const handleSaveNotes = async () => {
     if (!error) return;
@@ -45,9 +45,11 @@ const ErrorDetailModal = ({ error, open, onOpenChange, onUpdate }: ErrorDetailMo
 
   if (!error) return null;
 
+  const statusHistory = (error.status_history ?? []) as Array<{ status: string; changed_at: string }>;
+
   return (
-    <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             Detalhes do Erro
@@ -79,10 +81,33 @@ const ErrorDetailModal = ({ error, open, onOpenChange, onUpdate }: ErrorDetailMo
               </p>
             </div>
           </div>
+
           <div className="space-y-1">
             <Label className="text-muted-foreground text-xs">Descrição Completa</Label>
             <div className="bg-muted/50 rounded-md p-3 text-sm text-foreground whitespace-pre-wrap break-words">{error.description}</div>
           </div>
+
+          {/* Status History */}
+          {statusHistory.length > 0 && (
+            <div className="space-y-2 border-t pt-4">
+              <Label className="font-semibold text-foreground text-xs">Histórico de Status</Label>
+              <div className="flex flex-wrap gap-2 items-center text-xs">
+                <span className="text-muted-foreground">
+                  Criado em {new Date(error.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+                </span>
+                {statusHistory.map((h, i) => (
+                  <span key={i} className="flex items-center gap-1">
+                    <span className="text-muted-foreground">→</span>
+                    <Badge variant="outline" className={`${statusColors[h.status] || ""} text-[10px] px-1.5 py-0`}>{h.status}</Badge>
+                    <span className="text-muted-foreground">
+                      em {new Date(h.changed_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2 border-t pt-4">
             <Label className="font-semibold text-foreground">Anotações da Subliderança</Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Instruções, feedback ou observações sobre este caso..." rows={4} />

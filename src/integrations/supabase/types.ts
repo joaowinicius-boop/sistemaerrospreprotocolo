@@ -53,6 +53,7 @@ export type Database = {
           reported_by: string
           solution_responsible: string
           status: string
+          status_history: Json
         }
         Insert: {
           client_name: string
@@ -65,6 +66,7 @@ export type Database = {
           reported_by: string
           solution_responsible?: string
           status?: string
+          status_history?: Json
         }
         Update: {
           client_name?: string
@@ -77,8 +79,44 @@ export type Database = {
           reported_by?: string
           solution_responsible?: string
           status?: string
+          status_history?: Json
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          error_id: string | null
+          id: string
+          message: string
+          read: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_id?: string | null
+          id?: string
+          message: string
+          read?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_id?: string | null
+          id?: string
+          message?: string
+          read?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_error_id_fkey"
+            columns: ["error_id"]
+            isOneToOne: false
+            referencedRelation: "errors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

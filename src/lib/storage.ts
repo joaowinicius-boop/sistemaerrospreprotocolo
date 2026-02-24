@@ -1,5 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export interface StatusHistoryEntry {
+  status: string;
+  changed_at: string;
+}
+
 export interface ErrorReport {
   id: string;
   client_name: string;
@@ -11,6 +16,7 @@ export interface ErrorReport {
   created_at: string;
   notes: string;
   created_by: string | null;
+  status_history: StatusHistoryEntry[];
 }
 
 export async function getErrors(): Promise<ErrorReport[]> {
@@ -19,7 +25,7 @@ export async function getErrors(): Promise<ErrorReport[]> {
     .select("*")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as ErrorReport[];
+  return (data ?? []) as unknown as ErrorReport[];
 }
 
 export async function addError(
@@ -31,11 +37,23 @@ export async function addError(
     .select()
     .single();
   if (err) throw err;
-  return data as ErrorReport;
+  return data as unknown as ErrorReport;
 }
 
 export async function updateError(id: string, updates: Partial<ErrorReport>) {
-  const { error } = await supabase.from("errors").update(updates).eq("id", id);
+  // If status is being changed, append to status_history
+  if (updates.status) {
+    const { data: current } = await supabase.from("errors").select("status_history").eq("id", id).single();
+    const history = ((current?.status_history ?? []) as unknown as StatusHistoryEntry[]);
+    history.push({ status: updates.status, changed_at: new Date().toISOString() });
+    const { status_history: _sh, ...rest } = updates;
+    const payload = { ...rest, status_history: history as any };
+    const { error } = await supabase.from("errors").update(payload).eq("id", id);
+    if (error) throw error;
+    return;
+  }
+  const { status_history: _sh2, ...safeUpdates } = updates;
+  const { error } = await supabase.from("errors").update(safeUpdates as any).eq("id", id);
   if (error) throw error;
 }
 
