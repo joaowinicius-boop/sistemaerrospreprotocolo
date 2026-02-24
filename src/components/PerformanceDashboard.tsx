@@ -40,16 +40,15 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
   }, [errors]);
 
   const pieResponsibleData = useMemo(() => {
-    const map: Record<string, { display: string; count: number }> = {};
+    const map: Record<string, number> = {};
     errors.forEach((e) => {
       const raw = e.solution_responsible;
       if (!raw || !raw.trim()) return;
-      const key = normalize(raw);
-      if (!map[key]) map[key] = { display: raw.trim(), count: 0 };
-      map[key].count += 1;
+      const key = firstName(raw);
+      map[key] = (map[key] || 0) + 1;
     });
-    return Object.values(map)
-      .map((v, i) => ({ name: v.display, value: v.count, color: RESPONSIBLE_COLORS[i % RESPONSIBLE_COLORS.length] }))
+    return Object.entries(map)
+      .map(([name, value], i) => ({ name, value, color: RESPONSIBLE_COLORS[i % RESPONSIBLE_COLORS.length] }))
       .sort((a, b) => b.value - a.value);
   }, [errors]);
 

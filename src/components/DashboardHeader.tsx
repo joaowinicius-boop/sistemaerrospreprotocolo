@@ -8,21 +8,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, ShieldCheck, Settings, KeyRound, ChevronDown } from "lucide-react";
+import { LogOut, Settings, KeyRound, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import NotificationBell from "./NotificationBell";
 
 interface DashboardHeaderProps {
   displayName?: string;
   isAdmin?: boolean;
   onSignOut?: () => void;
+  userId?: string;
 }
 
-const DashboardHeader = ({ displayName, isAdmin, onSignOut }: DashboardHeaderProps) => {
+const DashboardHeader = ({ displayName, isAdmin, onSignOut, userId }: DashboardHeaderProps) => {
   const navigate = useNavigate();
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
@@ -57,7 +59,8 @@ const DashboardHeader = ({ displayName, isAdmin, onSignOut }: DashboardHeaderPro
           <h1 className="text-xl font-bold tracking-tight">Sistema de Gestão de Erros — Pré-Protocolo</h1>
           <p className="text-sm text-primary-foreground/70">Escritório Nicolas Gomes</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {userId && <NotificationBell userId={userId} />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
