@@ -92,20 +92,20 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground">Indicadores de Performance</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Status Pie */}
-        <div className="bg-card rounded-lg border shadow-sm p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Distribuição por Status</h3>
+        <div className="bg-card rounded-lg border shadow-sm p-5">
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">Distribuição por Status</h3>
           {pieStatusData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
-                <Pie data={pieStatusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={35} paddingAngle={3}>
+                <Pie data={pieStatusData} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={90} innerRadius={45} paddingAngle={3}>
                   {pieStatusData.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: number) => [value, "Registros"]} />
-                <Legend />
+                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -114,18 +114,18 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
         </div>
 
         {/* Responsible Pie */}
-        <div className="bg-card rounded-lg border shadow-sm p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Erros por Responsável pela Solução</h3>
+        <div className="bg-card rounded-lg border shadow-sm p-5">
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">Erros por Responsável pela Solução</h3>
           {pieResponsibleData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
-                <Pie data={pieResponsibleData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={35} paddingAngle={3}>
+                <Pie data={pieResponsibleData} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={90} innerRadius={45} paddingAngle={3}>
                   {pieResponsibleData.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: number) => [value, "Erros"]} />
-                <Legend />
+                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -134,13 +134,13 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
         </div>
 
         {/* Bar Chart */}
-        <div className="bg-card rounded-lg border shadow-sm p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Erros por Membro</h3>
+        <div className="bg-card rounded-lg border shadow-sm p-5">
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">Erros por Membro</h3>
           {barData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={barData} layout="vertical" margin={{ left: 10, right: 10 }}>
-                <XAxis type="number" allowDecimals={false} />
-                <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 11 }} />
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={barData} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
+                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} tickCount={5} />
+                <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
                 <Tooltip formatter={(value: number) => [value, "Erros identificados"]} />
                 <Bar dataKey="total" fill="hsl(210, 60%, 45%)" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -151,18 +151,18 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
         </div>
 
         {/* Sector Pie */}
-        <div className="bg-card rounded-lg border shadow-sm p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Volume de Erros por Setor</h3>
+        <div className="bg-card rounded-lg border shadow-sm p-5">
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">Volume de Erros por Setor</h3>
           {sectorData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
-                <Pie data={sectorData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={35} paddingAngle={3}>
+                <Pie data={sectorData} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={90} innerRadius={45} paddingAngle={3}>
                   {sectorData.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: number) => [value, "Erros"]} />
-                <Legend />
+                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
