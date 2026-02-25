@@ -24,6 +24,19 @@ const RESPONSIBLE_COLORS = [
   "hsl(60, 70%, 40%)",
 ];
 
+const SECTOR_CONFIG: Record<string, { members: string[]; color: string }> = {
+  "Organização de Documentos": {
+    members: ["JOAO", "FABIELEM", "JOSE", "HINGRID"],
+    color: "hsl(210, 65%, 35%)",
+  },
+  "Peticionamento": {
+    members: ["MILENA", "LARISSA", "ELIZABETH"],
+    color: "hsl(210, 30%, 65%)",
+  },
+};
+
+export { SECTOR_CONFIG };
+
 const normalize = (name: string) => name.trim().toUpperCase();
 const firstName = (name: string) => normalize(name).split(/\s+/)[0];
 
@@ -64,12 +77,22 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
       .sort((a, b) => b.total - a.total);
   }, [errors]);
 
+  const sectorData = useMemo(() => {
+    return Object.entries(SECTOR_CONFIG).map(([sector, cfg]) => {
+      const count = errors.filter((e) => {
+        const name = firstName(e.solution_responsible || "");
+        return cfg.members.includes(name);
+      }).length;
+      return { name: sector, value: count, color: cfg.color };
+    }).filter((d) => d.value > 0);
+  }, [errors]);
+
   if (errors.length === 0) return null;
 
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground">Indicadores de Performance</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Status Pie */}
         <div className="bg-card rounded-lg border shadow-sm p-4">
           <h3 className="text-sm font-medium text-muted-foreground mb-3">Distribuição por Status</h3>
@@ -121,6 +144,26 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
                 <Tooltip formatter={(value: number) => [value, "Erros identificados"]} />
                 <Bar dataKey="total" fill="hsl(210, 60%, 45%)" radius={[0, 4, 4, 0]} />
               </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-muted-foreground text-sm text-center py-8">Sem dados</p>
+          )}
+        </div>
+
+        {/* Sector Pie */}
+        <div className="bg-card rounded-lg border shadow-sm p-4">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Volume de Erros por Setor</h3>
+          {sectorData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={sectorData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={35} paddingAngle={3}>
+                  {sectorData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => [value, "Erros"]} />
+                <Legend />
+              </PieChart>
             </ResponsiveContainer>
           ) : (
             <p className="text-muted-foreground text-sm text-center py-8">Sem dados</p>

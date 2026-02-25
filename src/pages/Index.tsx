@@ -5,7 +5,9 @@ import ReportErrorModal from "@/components/ReportErrorModal";
 import TeamSettings from "@/components/TeamSettings";
 import ErrorsTable from "@/components/ErrorsTable";
 import PerformanceDashboard from "@/components/PerformanceDashboard";
+import { SECTOR_CONFIG } from "@/components/PerformanceDashboard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getErrors, deleteError, updateError, getTeamMembers, addTeamMember, removeTeamMember } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +19,7 @@ const Index = () => {
   const [errors, setErrors] = useState<ErrorReport[]>([]);
   const [teamMembers, setTeamMembers] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sectorFilter, setSectorFilter] = useState<string>("all");
 
   const refresh = useCallback(async () => {
     try {
@@ -97,8 +100,18 @@ const Index = () => {
     catch { toast.error("Erro ao remover membro."); }
   };
 
-  const pendingErrors = errors.filter((e) => e.status !== "Resolvido");
-  const resolvedErrors = errors.filter((e) => e.status === "Resolvido");
+  const filterBySector = (list: ErrorReport[]) => {
+    if (sectorFilter === "all") return list;
+    const cfg = SECTOR_CONFIG[sectorFilter];
+    if (!cfg) return list;
+    return list.filter((e) => {
+      const name = (e.solution_responsible || "").trim().toUpperCase().split(/\s+/)[0];
+      return cfg.members.includes(name);
+    });
+  };
+
+  const pendingErrors = filterBySector(errors.filter((e) => e.status !== "Resolvido"));
+  const resolvedErrors = filterBySector(errors.filter((e) => e.status === "Resolvido"));
 
   if (loading) {
     return (
@@ -127,10 +140,23 @@ const Index = () => {
           </div>
         </div>
         <Tabs defaultValue="pendentes">
-          <TabsList>
-            <TabsTrigger value="pendentes">Pendentes ({pendingErrors.length})</TabsTrigger>
-            <TabsTrigger value="resolvidos">Resolvidos ({resolvedErrors.length})</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <TabsList>
+              <TabsTrigger value="pendentes">Pendentes ({pendingErrors.length})</TabsTrigger>
+              <TabsTrigger value="resolvidos">Resolvidos ({resolvedErrors.length})</TabsTrigger>
+            </TabsList>
+            <Select value={sectorFilter} onValueChange={setSectorFilter}>
+              <SelectTrigger className="w-[220px] h-9 text-sm">
+                <SelectValue placeholder="Filtrar por Setor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Setores</SelectItem>
+                {Object.keys(SECTOR_CONFIG).map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <TabsContent value="pendentes">
             <ErrorsTable errors={pendingErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} currentUserId={user?.id} isAdmin={isAdmin} />
           </TabsContent>
