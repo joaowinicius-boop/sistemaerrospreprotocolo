@@ -77,7 +77,7 @@ export default function AddPriorityModal({ teamMembers, onPriorityAdded, current
           Nova Prioridade
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
         <DialogHeader>
           <DialogTitle>Adicionar Prioridade</DialogTitle>
         </DialogHeader>

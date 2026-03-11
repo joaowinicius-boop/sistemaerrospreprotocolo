@@ -151,7 +151,7 @@ export default function PriorityDetailsModal({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
         <DialogHeader>
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2">
