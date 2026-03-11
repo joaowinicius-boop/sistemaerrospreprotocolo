@@ -17,6 +17,7 @@ export default function PrioritiesTab({ teamMembers, isAdmin, currentUserId }: P
   const [loading, setLoading] = useState(true);
   const [sectorFilter, setSectorFilter] = useState<string>("all");
   const [responsibleFilter, setResponsibleFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("active");
 
   const refresh = useCallback(async () => {
     try {
@@ -43,6 +44,8 @@ export default function PrioritiesTab({ teamMembers, isAdmin, currentUserId }: P
   }, [refresh]);
 
   const filteredData = priorities.filter(p => {
+    if (statusFilter === "active" && p.completed_at) return false;
+    if (statusFilter === "completed" && !p.completed_at) return false;
     if (sectorFilter !== "all" && p.current_sector !== sectorFilter) return false;
     if (responsibleFilter !== "all" && p.responsible_name !== responsibleFilter) return false;
     return true;
@@ -53,7 +56,17 @@ export default function PrioritiesTab({ teamMembers, isAdmin, currentUserId }: P
       <PriorityKPIs priorities={priorities} />
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Em Andamento</SelectItem>
+              <SelectItem value="completed">Concluídos</SelectItem>
+              <SelectItem value="all">Todos os Status</SelectItem>
+            </SelectContent>
+          </Select>
           <Select value={sectorFilter} onValueChange={setSectorFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrar por Setor" />

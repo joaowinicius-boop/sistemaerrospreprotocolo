@@ -8,24 +8,27 @@ interface PriorityKPIsProps {
 }
 
 export default function PriorityKPIs({ priorities }: PriorityKPIsProps) {
-  const activePriorities = priorities.length;
+  const completedPriorities = priorities.filter(p => !!p.completed_at);
+  const activePriorities = priorities.length - completedPriorities.length;
   
   const urgentPriorities = priorities.filter(p => {
+    if (p.completed_at) return false; // Not urgent if completed
     const daysLeft = differenceInDays(new Date(p.deadline), new Date());
     return daysLeft <= 2;
   }).length;
 
   const getSectorCount = (sector: string) => {
-    return priorities.filter(p => p.current_sector === sector).length;
+    // Only count active for sectors typically
+    return priorities.filter(p => p.current_sector === sector && !p.completed_at).length;
   };
 
   // Calculate Average Completion Time
   let averageCompletion = "N/A";
-  const completedPriorities = priorities.filter(p => p.completed_at && p.requested_date);
+  const completedWithDate = priorities.filter(p => p.completed_at && p.requested_date);
   
-  if (completedPriorities.length > 0) {
+  if (completedWithDate.length > 0) {
     let totalDays = 0;
-    completedPriorities.forEach(p => {
+    completedWithDate.forEach(p => {
       // requested_date is string "yyyy-MM-dd"
       // completed_at is full ISO
       const days = differenceInDays(new Date(p.completed_at!), new Date(p.requested_date));
@@ -33,7 +36,7 @@ export default function PriorityKPIs({ priorities }: PriorityKPIsProps) {
       totalDays += Math.max(0, days);
     });
     
-    const avg = Math.round(totalDays / completedPriorities.length);
+    const avg = Math.round(totalDays / completedWithDate.length);
     averageCompletion = avg === 0 ? "< 1 dia" : `${avg} dia${avg > 1 ? 's' : ''}`;
   }
 
@@ -45,8 +48,11 @@ export default function PriorityKPIs({ priorities }: PriorityKPIsProps) {
           <ListTodo className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{activePriorities}</div>
-          <p className="text-xs text-muted-foreground">Total de processos a decorrer</p>
+          <div className="flex items-baseline gap-2">
+            <div className="text-2xl font-bold">{activePriorities}</div>
+            <span className="text-sm text-green-600 font-medium">/ {completedPriorities.length} concluídos</span>
+          </div>
+          <p className="text-xs text-muted-foreground">Total de processos a decorrer vs finalizados</p>
         </CardContent>
       </Card>
       

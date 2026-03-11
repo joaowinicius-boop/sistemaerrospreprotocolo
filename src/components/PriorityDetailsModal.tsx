@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash, Clock } from "lucide-react";
+import { Trash, Clock, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow, differenceInDays, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -111,6 +111,28 @@ export default function PriorityDetailsModal({
     }
   };
 
+  const handleToggleComplete = async () => {
+    if (!canEdit) return;
+    const isCompleted = !!priority.completed_at;
+    try {
+      if (isCompleted) {
+        // Reopen
+        await updatePriority(priority.id, { completed_at: null });
+        toast.success("Prioridade reaberta.");
+      } else {
+        // Complete
+        await updatePriority(priority.id, { 
+          completed_at: new Date().toISOString(),
+          current_sector: "Protocolo" // Automatically move to protocol if completed
+        });
+        toast.success("Prioridade marcada como concluída!");
+      }
+      onUpdate();
+    } catch {
+      toast.error("Erro ao alterar status.");
+    }
+  };
+
   const handleDelete = async () => {
     if (!canEdit) return;
     if (!confirm("Tem certeza que deseja excluir esta prioridade?")) return;
@@ -132,11 +154,27 @@ export default function PriorityDetailsModal({
       <DialogContent>
         <DialogHeader>
           <div className="flex justify-between items-start">
-            <DialogTitle className="text-xl">{priority.client_name}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <DialogTitle className="text-xl">{priority.client_name}</DialogTitle>
+              {priority.completed_at && (
+                <Badge className="bg-green-600 hover:bg-green-700">Concluído</Badge>
+              )}
+            </div>
             {canEdit && (
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={handleDelete} title="Excluir Prioridade">
-                <Trash className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant={priority.completed_at ? "outline" : "default"} 
+                  size="sm" 
+                  className={priority.completed_at ? "" : "bg-green-600 hover:bg-green-700"}
+                  onClick={handleToggleComplete}
+                >
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  {priority.completed_at ? "Reabrir" : "Concluir"}
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive ml-1" onClick={handleDelete} title="Excluir Prioridade">
+                  <Trash className="h-4 w-4" />
+                </Button>
+              </div>
             )}
           </div>
         </DialogHeader>
