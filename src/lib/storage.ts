@@ -19,6 +19,21 @@ export interface ErrorReport {
   status_history: StatusHistoryEntry[];
 }
 
+export interface Priority {
+  id: string;
+  client_name: string;
+  process_id: string;
+  description: string;
+  requested_by: string;
+  requested_date: string;
+  current_sector: "Pendência" | "Organização de Documentos" | "Peticionamento" | "Protocolo";
+  responsible_name: string | null;
+  deadline: string;
+  completed_at: string | null;
+  created_at: string;
+  created_by: string | null;
+}
+
 export async function getErrors(): Promise<ErrorReport[]> {
   const { data, error } = await supabase
     .from("errors")
@@ -78,5 +93,36 @@ export async function addTeamMember(name: string) {
 
 export async function removeTeamMember(name: string) {
   const { error } = await supabase.from("team_members").delete().eq("name", name);
+  if (error) throw error;
+}
+
+export async function getPriorities(): Promise<Priority[]> {
+  const { data, error } = await supabase
+    .from("priorities")
+    .select("*")
+    .order("deadline", { ascending: true });
+  if (error && error.code !== "42P01") throw error; // ignore 'table does not exist' for initial load without table
+  return (data ?? []) as unknown as Priority[];
+}
+
+export async function addPriority(
+  priority: Pick<Priority, "client_name" | "process_id" | "description" | "requested_by" | "requested_date" | "current_sector" | "responsible_name" | "deadline"> & { created_by: string }
+): Promise<Priority> {
+  const { data, error: err } = await supabase
+    .from("priorities")
+    .insert(priority)
+    .select()
+    .single();
+  if (err) throw err;
+  return data as unknown as Priority;
+}
+
+export async function updatePriority(id: string, updates: Partial<Priority>) {
+  const { error } = await supabase.from("priorities").update(updates as any).eq("id", id);
+  if (error) throw error;
+}
+
+export async function deletePriority(id: string) {
+  const { error } = await supabase.from("priorities").delete().eq("id", id);
   if (error) throw error;
 }

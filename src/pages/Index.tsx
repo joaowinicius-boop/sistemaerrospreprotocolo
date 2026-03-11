@@ -6,6 +6,7 @@ import TeamSettings from "@/components/TeamSettings";
 import ErrorsTable from "@/components/ErrorsTable";
 import PerformanceDashboard from "@/components/PerformanceDashboard";
 import { SECTOR_CONFIG } from "@/components/PerformanceDashboard";
+import PrioritiesTab from "@/components/PrioritiesTab";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getErrors, deleteError, updateError, getTeamMembers, addTeamMember, removeTeamMember } from "@/lib/storage";
@@ -125,43 +126,68 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <DashboardHeader displayName={profile?.display_name || user?.email || ""} isAdmin={isAdmin} onSignOut={signOut} userId={user?.id} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <StatsCards errors={errors} />
-        <PerformanceDashboard errors={errors} />
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-foreground">Registros de Erros</h2>
-          <div className="flex gap-3">
-            <TeamSettings teamMembers={teamMembers} onAdd={handleAddMember} onRemove={handleRemoveMember} />
-            <ReportErrorModal
-              teamMembers={teamMembers}
-              onErrorAdded={refresh}
-              currentUserName={profile?.display_name || user?.email || ""}
-              currentUserId={user?.id || ""}
-            />
-          </div>
-        </div>
-        <Tabs defaultValue="pendentes">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <TabsList>
-              <TabsTrigger value="pendentes">Pendentes ({pendingErrors.length})</TabsTrigger>
-              <TabsTrigger value="resolvidos">Resolvidos ({resolvedErrors.length})</TabsTrigger>
+        <Tabs defaultValue="erros" className="w-full">
+          <div className="flex justify-start mb-6 border-b">
+            <TabsList className="bg-transparent h-12 w-full justify-start rounded-none border-b bg-transparent p-0">
+              <TabsTrigger 
+                value="erros" 
+                className="relative h-12 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              >
+                Erros no Protocolo
+              </TabsTrigger>
+              <TabsTrigger 
+                value="prioridades" 
+                className="relative h-12 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              >
+                Aba de Prioridades
+              </TabsTrigger>
             </TabsList>
-            <Select value={sectorFilter} onValueChange={setSectorFilter}>
-              <SelectTrigger className="w-[220px] h-9 text-sm">
-                <SelectValue placeholder="Filtrar por Setor" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os Setores</SelectItem>
-                {Object.keys(SECTOR_CONFIG).map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
-          <TabsContent value="pendentes">
-            <ErrorsTable errors={pendingErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} currentUserId={user?.id} isAdmin={isAdmin} />
+
+          <TabsContent value="erros" className="space-y-6 mt-0">
+            <StatsCards errors={errors} />
+            <PerformanceDashboard errors={errors} />
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-foreground">Registros de Erros</h2>
+              <div className="flex gap-3">
+                <TeamSettings teamMembers={teamMembers} onAdd={handleAddMember} onRemove={handleRemoveMember} />
+                <ReportErrorModal
+                  teamMembers={teamMembers}
+                  onErrorAdded={refresh}
+                  currentUserName={profile?.display_name || user?.email || ""}
+                  currentUserId={user?.id || ""}
+                />
+              </div>
+            </div>
+            <Tabs defaultValue="pendentes">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <TabsList>
+                  <TabsTrigger value="pendentes">Pendentes ({pendingErrors.length})</TabsTrigger>
+                  <TabsTrigger value="resolvidos">Resolvidos ({resolvedErrors.length})</TabsTrigger>
+                </TabsList>
+                <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                  <SelectTrigger className="w-[220px] h-9 text-sm">
+                    <SelectValue placeholder="Filtrar por Setor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os Setores</SelectItem>
+                    {Object.keys(SECTOR_CONFIG).map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <TabsContent value="pendentes">
+                <ErrorsTable errors={pendingErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} currentUserId={user?.id} isAdmin={isAdmin} />
+              </TabsContent>
+              <TabsContent value="resolvidos">
+                <ErrorsTable errors={resolvedErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} showSearch currentUserId={user?.id} isAdmin={isAdmin} />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
-          <TabsContent value="resolvidos">
-            <ErrorsTable errors={resolvedErrors} teamMembers={teamMembers} onDelete={handleDelete} onUpdate={handleUpdate} showSearch currentUserId={user?.id} isAdmin={isAdmin} />
+
+          <TabsContent value="prioridades" className="mt-0">
+            <PrioritiesTab teamMembers={teamMembers} isAdmin={isAdmin} currentUserId={user?.id} />
           </TabsContent>
         </Tabs>
       </main>
