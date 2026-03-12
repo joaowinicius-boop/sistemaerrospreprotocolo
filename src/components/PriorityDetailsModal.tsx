@@ -1,12 +1,11 @@
 import { ReactNode } from "react";
-import { Priority, updatePriority, deletePriority } from "@/lib/storage";
+import { Priority, updatePriority, deletePriority, PriorityLog } from "@/lib/storage";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash, Clock, CheckCircle } from "lucide-react";
+import { Trash, Clock, CheckCircle, Navigation } from "lucide-react";
 import { toast } from "sonner";
-import { formatDistanceToNow, differenceInDays, addDays } from "date-fns";
+import { formatDistanceToNow, differenceInDays, addDays, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -41,33 +40,69 @@ export default function PriorityDetailsModal({
   // RLS Validation on Frontend UI: Only Admin or the Creator can edit this priority
   const canEdit = isAdmin || (currentUserId && priority.created_by === currentUserId);
 
-  const handleSectorChange = async (sector: string) => {
+  const handleSectorToggle = async (sector: string) => {
     if (!canEdit) return;
     try {
-      const updates: Partial<Priority> = { current_sector: sector as any };
-      // Auto-complete logic when moving to Protocolo
-      if (sector === "Protocolo" && priority.current_sector !== "Protocolo") {
+      const currentSectors = priority.current_sector || [];
+      const isSelected = currentSectors.includes(sector);
+      const newSectors = isSelected 
+        ? currentSectors.filter(s => s !== sector)
+        : [...currentSectors, sector];
+        
+      if (newSectors.length === 0) {
+        toast.error("A prioridade deve ter pelo menos um setor.");
+        return;
+      }
+      
+      const updates: Partial<Priority> = { current_sector: newSectors };
+      
+      // Auto-complete logic when only Protocolo is selected
+      if (newSectors.length === 1 && newSectors[0] === "Protocolo" && (!currentSectors.includes("Protocolo") || currentSectors.length > 1)) {
         updates.completed_at = new Date().toISOString();
-      } else if (sector !== "Protocolo" && priority.current_sector === "Protocolo") {
+      } else if (!newSectors.includes("Protocolo") && currentSectors.includes("Protocolo")) {
         updates.completed_at = null;
       }
       
       await updatePriority(priority.id, updates);
-      toast.success("Setor atualizado!");
       onUpdate();
     } catch {
       toast.error("Erro ao atualizar.");
     }
   };
 
-  const handleResponsibleChange = async (resp: string) => {
+  const handleResponsibleToggle = async (resp: string) => {
     if (!canEdit) return;
     try {
-      await updatePriority(priority.id, { responsible_name: resp });
-      toast.success("Responsável atualizado!");
+      const currentResp = priority.responsible_name || [];
+      const isSelected = currentResp.includes(resp);
+      const newResp = isSelected
+        ? currentResp.filter(r => r !== resp)
+        : [...currentResp, resp];
+        
+      await updatePriority(priority.id, { responsible_name: newResp });
       onUpdate();
     } catch {
-      toast.error("Erro ao atualizar!");
+      toast.error("Erro ao atualizar responsável!");
+    }
+  };
+
+  const handleCompleteStep = async (userName: string) => {
+    if (!userName) {
+       toast.error("Nome de usuário não encontrado.");
+       return;
+    }
+    try {
+       const newLog: PriorityLog = {
+         action: "concluiu sua etapa",
+         user: userName,
+         created_at: new Date().toISOString()
+       };
+       const updatedLogs = [...(priority.logs || []), newLog];
+       await updatePriority(priority.id, { logs: updatedLogs });
+       toast.success("Etapa concluída registrada com sucesso!");
+       onUpdate();
+    } catch {
+       toast.error("Erro ao registrar conclusão da etapa.");
     }
   };
 
@@ -123,7 +158,7 @@ export default function PriorityDetailsModal({
         // Complete
         await updatePriority(priority.id, { 
           completed_at: new Date().toISOString(),
-          current_sector: "Protocolo" // Automatically move to protocol if completed
+          current_sector: ["Protocolo"] // Automatically move to protocol if completed
         });
         toast.success("Prioridade marcada como concluída!");
       }
@@ -198,37 +233,55 @@ export default function PriorityDetailsModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <span className="text-sm font-medium">Setor Atual</span>
-              {canEdit ? (
-                <Select value={priority.current_sector} onValueChange={handleSectorChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SECTORS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="p-2 border rounded-md bg-muted/30 text-muted-foreground">{priority.current_sector}</div>
-              )}
+              <span className="text-sm font-medium">Setores Envolvidos</span>
+              <div className="flex flex-wrap gap-2 p-2 border rounded-md min-h-[42px] bg-background">
+                {SECTORS.map(sec => {
+                  const isSelected = (priority.current_sector || []).includes(sec);
+                  if (!canEdit && !isSelected) return null; // In read-only mode, only show selected
+                  
+                  return (
+                    <div 
+                      key={sec} 
+                      onClick={() => handleSectorToggle(sec)}
+                      className={`px-3 py-1 text-sm rounded-full border transition-colors ${canEdit ? 'cursor-pointer' : ''} ${
+                        isSelected 
+                          ? "bg-primary text-primary-foreground border-primary" 
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {sec}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
             
             <div className="space-y-2">
-              <span className="text-sm font-medium">Responsável</span>
-              {canEdit ? (
-                <Select value={priority.responsible_name || ""} onValueChange={handleResponsibleChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sem responsável" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teamMembers.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="p-2 border rounded-md bg-muted/30 text-muted-foreground">
-                  {priority.responsible_name || "Sem responsável"}
-                </div>
-              )}
+              <span className="text-sm font-medium">Responsáveis</span>
+              <div className="flex flex-wrap gap-2 p-2 border rounded-md min-h-[42px] max-h-[120px] overflow-y-auto bg-background">
+                {!canEdit && (priority.responsible_name || []).length === 0 && (
+                   <span className="text-sm text-muted-foreground p-1">Sem responsável</span>
+                )}
+                
+                {teamMembers.map(m => {
+                  const isSelected = (priority.responsible_name || []).includes(m);
+                  if (!canEdit && !isSelected) return null; // In read-only mode, only show selected
+
+                  return (
+                    <div 
+                      key={m} 
+                      onClick={() => handleResponsibleToggle(m)}
+                      className={`px-3 py-1 text-sm rounded-full border transition-colors ${canEdit ? 'cursor-pointer' : ''} ${
+                        isSelected 
+                          ? "bg-primary text-primary-foreground border-primary" 
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {m}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -296,6 +349,44 @@ export default function PriorityDetailsModal({
               Modo de leitura: Apenas o Administrador ou o criador deste registro podem fazer alterações.
             </div>
           )}
+
+          {/* Timeline and OK button section */}
+          <div className="pt-4 border-t mt-6">
+            <div className="flex justify-between items-center mb-4">
+               <h3 className="font-semibold flex items-center gap-2">
+                 <Navigation className="w-4 h-4 text-primary" />
+                 Histórico de Tramitação
+               </h3>
+               {/* Any user viewing this priority can mark their step as done since it just logs and doesn't delete */}
+               <Button 
+                  onClick={() => handleCompleteStep(currentUserId || 'Usuário')}
+                  variant="outline"
+                  className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10"
+               >
+                 <CheckCircle className="w-4 h-4 mr-2" />
+                 Concluir minha etapa
+               </Button>
+            </div>
+
+            <div className="pl-2 space-y-4 relative before:absolute before:inset-0 before:ml-[15px] before:-translate-x-px before:w-0.5 before:bg-muted before:h-[90%] before:mt-4">
+              {(priority.logs || []).map((log, index) => (
+                <div key={index} className="relative flex items-start gap-4 z-10">
+                  <div className="flex-shrink-0 w-4 h-4 rounded-full bg-primary mt-1 ring-4 ring-background"></div>
+                  <div className="bg-muted/30 p-3 rounded-md border flex-1">
+                    <p className="text-sm">
+                      <span className="font-semibold text-primary">{log.user}</span> {log.action}
+                    </p>
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(log.created_at), "dd/MM/yyyy 'às' HH:mm")}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {(!priority.logs || priority.logs.length === 0) && (
+                 <p className="text-sm text-muted-foreground italic ml-8 py-2">Nenhum histórico registrado ainda.</p>
+              )}
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -19,6 +19,12 @@ export interface ErrorReport {
   status_history: StatusHistoryEntry[];
 }
 
+export interface PriorityLog {
+  action: string;
+  user: string;
+  created_at: string;
+}
+
 export interface Priority {
   id: string;
   client_name: string;
@@ -26,12 +32,13 @@ export interface Priority {
   description: string;
   requested_by: string;
   requested_date: string;
-  current_sector: "Pendência" | "Organização de Documentos" | "Peticionamento" | "Protocolo";
-  responsible_name: string | null;
+  current_sector: string[];
+  responsible_name: string[];
   deadline: string;
   completed_at: string | null;
   created_at: string;
   created_by: string | null;
+  logs: PriorityLog[];
 }
 
 export async function getErrors(): Promise<ErrorReport[]> {

@@ -27,12 +27,34 @@ export default function AddPriorityModal({ teamMembers, onPriorityAdded, current
     description: "",
     requested_by: "",
     requested_date: format(new Date(), "yyyy-MM-dd"),
-    current_sector: "Pendência",
-    responsible_name: "",
+    current_sector: ["Pendência"],
+    responsible_name: [] as string[],
   });
+
+  const toggleSector = (sector: string) => {
+    setFormData(s => ({
+      ...s,
+      current_sector: s.current_sector.includes(sector)
+        ? s.current_sector.filter(x => x !== sector)
+        : [...s.current_sector, sector]
+    }));
+  };
+
+  const toggleResponsible = (member: string) => {
+    setFormData(s => ({
+      ...s,
+      responsible_name: s.responsible_name.includes(member)
+        ? s.responsible_name.filter(x => x !== member)
+        : [...s.responsible_name, member]
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.current_sector.length === 0) {
+      toast.error("Selecione pelo menos um setor.");
+      return;
+    }
     setLoading(true);
     try {
       // Calculate deadline as 5 days from requested date
@@ -43,7 +65,8 @@ export default function AddPriorityModal({ teamMembers, onPriorityAdded, current
 
       await addPriority({
         ...formData,
-        current_sector: formData.current_sector as any,
+        current_sector: formData.current_sector,
+        responsible_name: formData.responsible_name,
         created_by: currentUserId,
         deadline: deadlineDate.toISOString(),
       });
@@ -58,8 +81,8 @@ export default function AddPriorityModal({ teamMembers, onPriorityAdded, current
         description: "",
         requested_by: "",
         requested_date: format(new Date(), "yyyy-MM-dd"),
-        current_sector: "Pendência",
-        responsible_name: "",
+        current_sector: ["Pendência"],
+        responsible_name: [],
       });
     } catch (error) {
       console.error(error);
@@ -128,32 +151,41 @@ export default function AddPriorityModal({ teamMembers, onPriorityAdded, current
             />
           </div>
           <div className="space-y-2">
-            <Label>Setor Atual</Label>
-            <Select
-              value={formData.current_sector}
-              onValueChange={(v) => setFormData(s => ({ ...s, current_sector: v }))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {SECTORS.map(sec => <SelectItem key={sec} value={sec}>{sec}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Label>Setores Envolvidos</Label>
+            <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-background">
+              {SECTORS.map(sec => (
+                <div 
+                  key={sec} 
+                  onClick={() => toggleSector(sec)}
+                  className={`cursor-pointer px-3 py-1 text-sm rounded-full border transition-colors ${
+                    formData.current_sector.includes(sec) 
+                      ? "bg-primary text-primary-foreground border-primary" 
+                      : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {sec}
+                </div>
+              ))}
+            </div>
           </div>
           <div className="space-y-2">
-            <Label>Responsável</Label>
-            <Select
-              value={formData.responsible_name}
-              onValueChange={(v) => setFormData(s => ({ ...s, responsible_name: v }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um responsável" />
-              </SelectTrigger>
-              <SelectContent>
-                {teamMembers.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Label>Responsáveis</Label>
+            <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-background min-h-[42px] max-h-[120px] overflow-y-auto">
+              {teamMembers.length === 0 && <span className="text-sm text-muted-foreground italic">Nenhum membro na equipe</span>}
+              {teamMembers.map(m => (
+                <div 
+                  key={m} 
+                  onClick={() => toggleResponsible(m)}
+                  className={`cursor-pointer px-3 py-1 text-sm rounded-full border transition-colors ${
+                    formData.responsible_name.includes(m) 
+                      ? "bg-primary text-primary-foreground border-primary" 
+                      : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {m}
+                </div>
+              ))}
+            </div>
           </div>
           
           <div className="text-xs text-muted-foreground italic bg-muted/50 p-2 rounded-md">
