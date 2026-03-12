@@ -123,8 +123,8 @@ const Index = () => {
     );
   }
 
-  // Se o usuário está logado mas não foi aprovado pelo administrador
-  if (user && profile && profile.active === false) {
+  // Se o usuário está logado mas não foi aprovado pelo administrador (admins sempre têm acesso)
+  if (user && profile && profile.active === false && !isAdmin) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <DashboardHeader displayName={profile.display_name || user.email || ""} isAdmin={false} onSignOut={signOut} userId={user.id} />
