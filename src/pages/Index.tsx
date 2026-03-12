@@ -123,21 +123,6 @@ const Index = () => {
     );
   }
 
-  // Se o usuário está logado mas não foi aprovado pelo administrador (admins sempre têm acesso)
-  if (user && profile && profile.active === false && !isAdmin) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <DashboardHeader displayName={profile.display_name || user.email || ""} isAdmin={false} onSignOut={signOut} userId={user.id} />
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">
-          <div className="bg-muted/30 p-8 rounded-lg border border-dashed border-muted-foreground/50 w-full space-y-4">
-            <h2 className="text-xl font-bold text-destructive">Aguardando Aprovação</h2>
-            <p className="text-muted-foreground">Seu cadastro foi realizado com sucesso, mas a sua conta precisa ser aprovada por um administrador para acessar o sistema.</p>
-            <p className="text-sm font-medium pt-4 text-foreground">Por favor, entre em contato com a gerência.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
