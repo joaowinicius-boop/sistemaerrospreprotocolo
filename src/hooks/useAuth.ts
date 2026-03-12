@@ -22,7 +22,11 @@ export function useAuth() {
       supabase.from("profiles").select("display_name, email, active").eq("user_id", user.id).single(),
       supabase.from("user_roles").select("role").eq("user_id", user.id),
     ]);
-    const isAdmin = (roles ?? []).some((r: { role: string }) => r.role === "admin");
+    const isAdminByRole = (roles ?? []).some((r: { role: string }) => r.role === "admin");
+    // Fallback: check by email in case user_roles query fails or missing entry
+    const ADMIN_EMAILS = ["joaowinicius@nicolasgomesadv.com.br", "joao.winicius@nicolasgomesadv.com.br"];
+    const isAdminByEmail = ADMIN_EMAILS.includes((user.email || "").toLowerCase());
+    const isAdmin = isAdminByRole || isAdminByEmail;
     setState({
       user,
       profile: profile ?? { display_name: user.email?.split("@")[0] ?? "", email: user.email ?? "", active: false },

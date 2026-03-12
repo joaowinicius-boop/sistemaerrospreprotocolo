@@ -94,7 +94,16 @@ const Index = () => {
 
   const handleAddMember = async (name: string) => {
     try { await addTeamMember(name); toast.success("Membro adicionado!"); }
-    catch { toast.error("Erro ao adicionar membro."); }
+    catch (e: any) { 
+      console.error("Add member error:", e);
+      const msg = e?.message || e?.details || e?.hint || "Erro desconhecido";
+      // Check if it's a unique constraint violation (duplicate name)
+      if (msg.includes("unique") || msg.includes("duplicate") || msg.includes("already exists")) {
+        toast.error(`Membro '${name}' já existe na equipe.`);
+      } else {
+        toast.error(`Erro ao adicionar membro: ${msg}`);
+      }
+    }
   };
 
   const handleRemoveMember = async (name: string) => {
