@@ -7,6 +7,7 @@ import ErrorsTable from "@/components/ErrorsTable";
 import PerformanceDashboard from "@/components/PerformanceDashboard";
 import { SECTOR_CONFIG } from "@/components/PerformanceDashboard";
 import PrioritiesTab from "@/components/PrioritiesTab";
+import AdminPanel from "@/components/AdminPanel";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getErrors, deleteError, updateError, getTeamMembers, addTeamMember, removeTeamMember } from "@/lib/storage";
@@ -122,6 +123,22 @@ const Index = () => {
     );
   }
 
+  // Se o usuário está logado mas não foi aprovado pelo administrador
+  if (user && profile && profile.active === false) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <DashboardHeader displayName={profile.display_name || user.email || ""} isAdmin={false} onSignOut={signOut} userId={user.id} />
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">
+          <div className="bg-muted/30 p-8 rounded-lg border border-dashed border-muted-foreground/50 w-full space-y-4">
+            <h2 className="text-xl font-bold text-destructive">Aguardando Aprovação</h2>
+            <p className="text-muted-foreground">Seu cadastro foi realizado com sucesso, mas a sua conta precisa ser aprovada por um administrador para acessar o sistema.</p>
+            <p className="text-sm font-medium pt-4 text-foreground">Por favor, entre em contato com a gerência.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader displayName={profile?.display_name || user?.email || ""} isAdmin={isAdmin} onSignOut={signOut} userId={user?.id} />
@@ -141,6 +158,14 @@ const Index = () => {
               >
                 Aba de Prioridades
               </TabsTrigger>
+              {isAdmin && (
+                <TabsTrigger 
+                  value="admin" 
+                  className="relative h-12 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                >
+                  Administrador
+                </TabsTrigger>
+              )}
             </TabsList>
           </div>
 
@@ -189,6 +214,12 @@ const Index = () => {
           <TabsContent value="prioridades" className="mt-0">
             <PrioritiesTab teamMembers={teamMembers} isAdmin={isAdmin} currentUserId={user?.id} />
           </TabsContent>
+
+          {isAdmin && (
+            <TabsContent value="admin" className="mt-0">
+              <AdminPanel currentUserId={user?.id} />
+            </TabsContent>
+          )}
         </Tabs>
       </main>
     </div>

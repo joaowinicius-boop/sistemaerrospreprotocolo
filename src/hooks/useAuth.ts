@@ -4,7 +4,7 @@ import type { User } from "@supabase/supabase-js";
 
 interface AuthState {
   user: User | null;
-  profile: { display_name: string; email: string } | null;
+  profile: { display_name: string; email: string; active?: boolean } | null;
   isAdmin: boolean;
   loading: boolean;
 }
@@ -19,13 +19,13 @@ export function useAuth() {
 
   const fetchUserData = useCallback(async (user: User) => {
     const [{ data: profile }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("display_name, email").eq("user_id", user.id).single(),
+      supabase.from("profiles").select("display_name, email, active").eq("user_id", user.id).single(),
       supabase.from("user_roles").select("role").eq("user_id", user.id),
     ]);
     const isAdmin = (roles ?? []).some((r: { role: string }) => r.role === "admin");
     setState({
       user,
-      profile: profile ?? { display_name: user.email?.split("@")[0] ?? "", email: user.email ?? "" },
+      profile: profile ?? { display_name: user.email?.split("@")[0] ?? "", email: user.email ?? "", active: false },
       isAdmin,
       loading: false,
     });

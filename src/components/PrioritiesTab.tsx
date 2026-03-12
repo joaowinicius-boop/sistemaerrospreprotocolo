@@ -4,6 +4,7 @@ import PriorityCard from "./PriorityCard";
 import PriorityKPIs from "./PriorityKPIs";
 import AddPriorityModal from "./AddPriorityModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 
 interface PrioritiesTabProps {
@@ -55,18 +56,16 @@ export default function PrioritiesTab({ teamMembers, isAdmin, currentUserId }: P
     <div className="space-y-6">
       <PriorityKPIs priorities={priorities} />
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Em Andamento</SelectItem>
-              <SelectItem value="completed">Concluídos</SelectItem>
-              <SelectItem value="all">Todos os Status</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+        
+        <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full sm:w-auto">
+          <TabsList className="grid w-full grid-cols-2 sm:w-[350px]">
+            <TabsTrigger value="active">Em Andamento</TabsTrigger>
+            <TabsTrigger value="completed">Concluídas</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <div className="flex flex-wrap gap-2 w-full xl:w-auto">
           <Select value={sectorFilter} onValueChange={setSectorFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrar por Setor" />
