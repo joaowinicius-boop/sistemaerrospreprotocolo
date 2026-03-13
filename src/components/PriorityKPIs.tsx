@@ -19,7 +19,7 @@ export default function PriorityKPIs({ priorities }: PriorityKPIsProps) {
 
   const getSectorCount = (sector: string) => {
     // Only count active for sectors typically
-    return priorities.filter(p => p.current_sector === sector && !p.completed_at).length;
+    return priorities.filter(p => (p.current_sector || []).includes(sector) && !p.completed_at).length;
   };
 
   // Calculate Average Completion Time
