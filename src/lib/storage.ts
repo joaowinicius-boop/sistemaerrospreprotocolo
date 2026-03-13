@@ -110,16 +110,33 @@ export async function getPriorities(): Promise<Priority[]> {
     .order("deadline", { ascending: true });
   if (error && error.code !== "42P01") throw error; // ignore 'table does not exist' for initial load without table
   
-  // Normalize data: ensure sector/responsible/logs are always arrays
+  const parseArrayField = (value: any): string[] => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === "string") {
+      if (value.startsWith("[")) {
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {}
+      }
+      return value ? [value] : [];
+    }
+    return [];
+  };
+
+  const parseLogsField = (value: any): PriorityLog[] => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === "string") {
+      try { const p = JSON.parse(value); if (Array.isArray(p)) return p; } catch {}
+    }
+    return [];
+  };
+
   const normalized = (data ?? []).map((p: any) => ({
     ...p,
-    current_sector: Array.isArray(p.current_sector)
-      ? p.current_sector
-      : p.current_sector ? [p.current_sector] : [],
-    responsible_name: Array.isArray(p.responsible_name)
-      ? p.responsible_name
-      : p.responsible_name ? [p.responsible_name] : [],
-    logs: Array.isArray(p.logs) ? p.logs : [],
+    current_sector: parseArrayField(p.current_sector),
+    responsible_name: parseArrayField(p.responsible_name),
+    logs: parseLogsField(p.logs),
   }));
   
   return normalized as Priority[];

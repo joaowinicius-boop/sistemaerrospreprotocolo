@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Priority } from "@/lib/storage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, User } from "lucide-react";
+import { Clock, User, CheckSquare } from "lucide-react";
 import { formatDistanceToNow, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import PriorityDetailsModal from "./PriorityDetailsModal";
@@ -21,6 +21,10 @@ export default function PriorityCard({ priority, teamMembers, isAdmin, currentUs
   const deadlineDate = new Date(priority.deadline);
   const daysLeft = differenceInDays(deadlineDate, new Date());
   const isCritical = daysLeft <= 5;
+  const hasCompletedSteps = (priority.logs || []).some(l => l.action === "concluiu sua etapa");
+  const lastCompletedBy = hasCompletedSteps
+    ? [...(priority.logs || [])].reverse().find(l => l.action === "concluiu sua etapa")?.user
+    : null;
 
   return (
     <PriorityDetailsModal
@@ -35,7 +39,15 @@ export default function PriorityCard({ priority, teamMembers, isAdmin, currentUs
     >
       <Card className={`relative transition-all hover:shadow-md cursor-pointer border-l-4 ${isCritical ? "border-l-destructive" : "border-l-primary"}`}>
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-semibold">{priority.client_name}</CardTitle>
+          <div className="flex justify-between items-start">
+            <CardTitle className="text-lg font-semibold leading-snug">{priority.client_name}</CardTitle>
+            {hasCompletedSteps && (
+              <div className="flex-shrink-0 flex items-center gap-1 ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full border border-green-200" title={`Última etapa concluída por: ${lastCompletedBy}`}>
+                <CheckSquare className="w-3 h-3" />
+                <span className="whitespace-nowrap">Etapa OK</span>
+              </div>
+            )}
+          </div>
           <p className="text-sm text-muted-foreground mt-1">Processo: {priority.process_id}</p>
         </CardHeader>
         <CardContent className="space-y-4">
