@@ -11,9 +11,10 @@ interface PrioritiesTabProps {
   teamMembers: string[];
   isAdmin: boolean;
   currentUserId: string | undefined;
+  currentUserName: string;
 }
 
-export default function PrioritiesTab({ teamMembers, isAdmin, currentUserId }: PrioritiesTabProps) {
+export default function PrioritiesTab({ teamMembers, isAdmin, currentUserId, currentUserName }: PrioritiesTabProps) {
   const [priorities, setPriorities] = useState<Priority[]>([]);
   const [loading, setLoading] = useState(true);
   const [sectorFilter, setSectorFilter] = useState<string>("all");
@@ -47,8 +48,10 @@ export default function PrioritiesTab({ teamMembers, isAdmin, currentUserId }: P
   const filteredData = priorities.filter(p => {
     if (statusFilter === "active" && p.completed_at) return false;
     if (statusFilter === "completed" && !p.completed_at) return false;
-    if (sectorFilter !== "all" && p.current_sector !== sectorFilter) return false;
-    if (responsibleFilter !== "all" && p.responsible_name !== responsibleFilter) return false;
+    // sector is now an array
+    if (sectorFilter !== "all" && !(p.current_sector || []).includes(sectorFilter)) return false;
+    // responsible_name is now an array
+    if (responsibleFilter !== "all" && !(p.responsible_name || []).includes(responsibleFilter)) return false;
     return true;
   });
 
@@ -114,6 +117,7 @@ export default function PrioritiesTab({ teamMembers, isAdmin, currentUserId }: P
               teamMembers={teamMembers} 
               isAdmin={isAdmin} 
               currentUserId={currentUserId}
+              currentUserName={currentUserName}
               onUpdate={refresh} 
             />
           ))}

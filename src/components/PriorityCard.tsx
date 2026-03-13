@@ -12,10 +12,11 @@ interface PriorityCardProps {
   teamMembers: string[];
   isAdmin: boolean;
   currentUserId: string | undefined;
+  currentUserName: string;
   onUpdate: () => void;
 }
 
-export default function PriorityCard({ priority, teamMembers, isAdmin, currentUserId, onUpdate }: PriorityCardProps) {
+export default function PriorityCard({ priority, teamMembers, isAdmin, currentUserId, currentUserName, onUpdate }: PriorityCardProps) {
   const [open, setOpen] = useState(false);
   const deadlineDate = new Date(priority.deadline);
   const daysLeft = differenceInDays(deadlineDate, new Date());
@@ -27,6 +28,7 @@ export default function PriorityCard({ priority, teamMembers, isAdmin, currentUs
       teamMembers={teamMembers}
       isAdmin={isAdmin}
       currentUserId={currentUserId}
+      currentUserName={currentUserName}
       onUpdate={onUpdate}
       open={open}
       onOpenChange={setOpen}
@@ -61,11 +63,11 @@ export default function PriorityCard({ priority, teamMembers, isAdmin, currentUs
             </div>
             <div className="space-y-1">
               <span className="text-xs text-muted-foreground block">Setor</span>
-              <span className="text-sm font-medium">{priority.current_sector}</span>
+              <span className="text-sm font-medium">{(priority.current_sector || []).join(", ") || "Não atribuído"}</span>
             </div>
             <div className="space-y-1">
               <span className="text-xs text-muted-foreground block">Responsável</span>
-              <span className="text-sm font-medium">{priority.responsible_name || "Não atribuído"}</span>
+              <span className="text-sm font-medium">{(priority.responsible_name || []).join(", ") || "Não atribuído"}</span>
             </div>
           </div>
         </CardContent>

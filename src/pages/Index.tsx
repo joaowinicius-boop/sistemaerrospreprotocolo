@@ -132,7 +132,29 @@ const Index = () => {
     );
   }
 
-
+  // Approval gate: non-admin users with active=false must wait
+  if (!isAdmin && profile && profile.active === false) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6 p-6">
+        <div className="max-w-md text-center space-y-4">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto">
+            <span className="text-3xl">⏳</span>
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">Aguardando Aprovação</h1>
+          <p className="text-muted-foreground">
+            Sua conta foi criada com sucesso! Um administrador precisa aprovar seu acesso antes que você possa utilizar o sistema.
+          </p>
+          <p className="text-sm text-muted-foreground italic">Entre em contato com o administrador.</p>
+          <button
+            onClick={signOut}
+            className="mt-4 text-sm text-destructive underline hover:no-underline"
+          >
+            Sair da conta
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader displayName={profile?.display_name || user?.email || ""} isAdmin={isAdmin} onSignOut={signOut} userId={user?.id} />
@@ -206,7 +228,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="prioridades" className="mt-0">
-            <PrioritiesTab teamMembers={teamMembers} isAdmin={isAdmin} currentUserId={user?.id} />
+            <PrioritiesTab teamMembers={teamMembers} isAdmin={isAdmin} currentUserId={user?.id} currentUserName={profile?.display_name || user?.email || ""} />
           </TabsContent>
 
           {isAdmin && (

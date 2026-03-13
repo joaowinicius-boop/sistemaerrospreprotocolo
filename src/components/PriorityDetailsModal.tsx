@@ -15,6 +15,7 @@ interface PriorityDetailsModalProps {
   teamMembers: string[];
   isAdmin: boolean;
   currentUserId: string | undefined;
+  currentUserName: string;
   onUpdate: () => void;
   children: ReactNode;
   open: boolean;
@@ -28,6 +29,7 @@ export default function PriorityDetailsModal({
   teamMembers, 
   isAdmin, 
   currentUserId,
+  currentUserName,
   onUpdate,
   children,
   open,
@@ -86,11 +88,8 @@ export default function PriorityDetailsModal({
     }
   };
 
-  const handleCompleteStep = async (userName: string) => {
-    if (!userName) {
-       toast.error("Nome de usuário não encontrado.");
-       return;
-    }
+  const handleCompleteStep = async () => {
+    const userName = currentUserName || "Usuário desconhecido";
     try {
        const newLog: PriorityLog = {
          action: "concluiu sua etapa",
@@ -357,9 +356,9 @@ export default function PriorityDetailsModal({
                  <Navigation className="w-4 h-4 text-primary" />
                  Histórico de Tramitação
                </h3>
-               {/* Any user viewing this priority can mark their step as done since it just logs and doesn't delete */}
+               {/* Button visible to ALL authenticated users - not just canEdit */}
                <Button 
-                  onClick={() => handleCompleteStep(currentUserId || 'Usuário')}
+                  onClick={() => handleCompleteStep()}
                   variant="outline"
                   className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10"
                >
