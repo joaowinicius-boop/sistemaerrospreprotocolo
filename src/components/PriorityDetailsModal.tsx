@@ -106,10 +106,18 @@ export default function PriorityDetailsModal({
   };
 
   const handleDescriptionChange = async (desc: string) => {
-    if (!canEdit) return;
+    // Allow ALL users to update description, but log who did it
     try {
-      await updatePriority(priority.id, { description: desc });
-      // Remove toast.success here to prevent spamming on blur, handled silently
+      const updatedLogs = [
+        ...(priority.logs || []),
+        {
+          action: "atualizou a descrição",
+          user: currentUserName || "Usuário",
+          created_at: new Date().toISOString()
+        }
+      ];
+      await updatePriority(priority.id, { description: desc, logs: updatedLogs });
+      toast.success("Descrição salva!");
       onUpdate();
     } catch {
       toast.error("Erro ao salvar descrição!");
@@ -324,30 +332,21 @@ export default function PriorityDetailsModal({
 
           <div className="space-y-2">
             <span className="text-sm font-medium">Descrição / Observações</span>
-            {canEdit ? (
-              <Textarea 
-                defaultValue={priority.description || ""}
-                onBlur={(e) => {
-                  if (e.target.value !== priority.description) {
-                    handleDescriptionChange(e.target.value);
-                  }
-                }}
-                placeholder="Detalhes adicionais importantes..."
-                className="resize-none h-24"
-              />
-            ) : (
-              <div className="p-3 border rounded-md bg-muted/30 text-muted-foreground whitespace-pre-wrap min-h-20 text-sm">
-                {priority.description || "Nenhuma descrição fornecida."}
-              </div>
-            )}
-            {canEdit && <p className="text-xs text-muted-foreground">Clique fora da caixa texto para salvar automaticamente.</p>}
+            {/* All authenticated users can edit the description to add notes */}
+            <Textarea 
+              key={priority.description}
+              defaultValue={priority.description || ""}
+              onBlur={(e) => {
+                if (e.target.value !== priority.description) {
+                  handleDescriptionChange(e.target.value);
+                }
+              }}
+              placeholder="Adicione detalhes, observações ou anotações importantes..."
+              className="resize-none h-24"
+            />
+            <p className="text-xs text-muted-foreground">Clique fora da caixa de texto para salvar. Sua anotação ficará registrada no histórico abaixo.</p>
           </div>
 
-          {!canEdit && (
-            <div className="text-xs text-muted-foreground mt-4 italic bg-muted/50 p-3 rounded-md">
-              Modo de leitura: Apenas o Administrador ou o criador deste registro podem fazer alterações.
-            </div>
-          )}
 
           {/* Timeline and OK button section */}
           <div className="pt-4 border-t mt-6">
