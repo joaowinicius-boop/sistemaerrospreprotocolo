@@ -109,7 +109,20 @@ export async function getPriorities(): Promise<Priority[]> {
     .select("*")
     .order("deadline", { ascending: true });
   if (error && error.code !== "42P01") throw error; // ignore 'table does not exist' for initial load without table
-  return (data ?? []) as unknown as Priority[];
+  
+  // Normalize data: ensure sector/responsible/logs are always arrays
+  const normalized = (data ?? []).map((p: any) => ({
+    ...p,
+    current_sector: Array.isArray(p.current_sector)
+      ? p.current_sector
+      : p.current_sector ? [p.current_sector] : [],
+    responsible_name: Array.isArray(p.responsible_name)
+      ? p.responsible_name
+      : p.responsible_name ? [p.responsible_name] : [],
+    logs: Array.isArray(p.logs) ? p.logs : [],
+  }));
+  
+  return normalized as Priority[];
 }
 
 export async function addPriority(
