@@ -47,7 +47,10 @@ export async function getErrors(): Promise<ErrorReport[]> {
     .select("*")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as unknown as ErrorReport[];
+  return (data ?? []).map((e: any) => ({
+    ...e,
+    status: e.status || "Pendente",
+  })) as unknown as ErrorReport[];
 }
 
 export async function addError(

@@ -115,7 +115,7 @@ const ErrorsTable = ({ errors, teamMembers, onDelete, onUpdate, showSearch = fal
                     )}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                    {new Date(error.created_at).toLocaleDateString("pt-BR")}
+                    {error.created_at ? new Date(error.created_at).toLocaleDateString("pt-BR") : "—"}
                   </TableCell>
                   <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                     {canModify(error) && (
