@@ -71,7 +71,9 @@ const Index = () => {
   const handleUpdate = async (id: string, updates: Partial<ErrorReport>) => {
     try {
       const target = errors.find((e) => e.id === id);
+      setErrors((prev) => prev.map((e) => e.id === id ? { ...e, ...updates } : e));
       await updateError(id, updates);
+      refresh();
       // If resolving, notify the reporter
       if (updates.status === "Resolvido" && target && target.created_by && user) {
         await supabase.from("audit_log").insert({
