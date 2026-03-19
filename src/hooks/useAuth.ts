@@ -18,26 +18,36 @@ export function useAuth() {
   });
 
   const fetchUserData = useCallback(async (user: User) => {
-    let { data: profile } = await supabase
+    // Buscar perfil existente — usa .limit(1) pra evitar erro se houver duplicatas residuais
+    const { data: profiles } = await supabase
       .from("profiles")
       .select("display_name, email, active")
       .eq("user_id", user.id)
-      .single();
+      .limit(1);
 
-    // Se o trigger do Supabase falhou silenciosamente e não criou o perfil, cria agora
+    let profile = profiles && profiles.length > 0 ? profiles[0] : null;
+
+    // Se não encontrou perfil, cria usando upsert para evitar duplicatas
     if (!profile) {
       const display_name =
         user.user_metadata?.full_name ||
         user.user_metadata?.name ||
         user.email?.split("@")[0] ||
         "";
-      await supabase.from("profiles").insert({
-        user_id: user.id,
-        email: user.email,
-        display_name,
-        active: false,
-      });
-      await supabase.from("user_roles").insert({ user_id: user.id, role: "user" });
+      await supabase.from("profiles").upsert(
+        {
+          user_id: user.id,
+          email: user.email,
+          display_name,
+          active: false,
+        },
+        { onConflict: "user_id" }
+      );
+      // Upsert para user_roles também
+      await supabase.from("user_roles").upsert(
+        { user_id: user.id, role: "user" },
+        { onConflict: "user_id" }
+      );
       profile = { display_name, email: user.email ?? "", active: false };
     }
 
