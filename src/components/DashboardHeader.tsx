@@ -49,21 +49,21 @@ const DashboardHeader = ({ displayName, isAdmin, onSignOut, userId }: DashboardH
 
   return (
     <>
-      <header className="bg-primary text-primary-foreground px-6 py-4 flex items-center gap-4 shadow-md">
+      <header className="bg-card border-b border-border px-6 py-4 flex items-center gap-4">
         <img
           src={logo}
           alt="Nicolas Gomes Advogado"
-          className="w-12 h-12 rounded-full object-cover border-2 border-primary-foreground/30 bg-card flex-shrink-0"
+          className="w-12 h-12 rounded-full object-cover border-2 border-primary/40 flex-shrink-0"
         />
         <div className="flex-1">
           <h1 className="text-xl font-bold tracking-tight">Sistema de Gestão de Erros — Pré-Protocolo</h1>
-          <p className="text-sm text-primary-foreground/70">Escritório Nicolas Gomes</p>
+          <p className="text-sm text-muted-foreground">Nicolas Gomes Advogado</p>
         </div>
         <div className="flex items-center gap-2">
           {userId && <NotificationBell userId={userId} />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
+              <Button variant="ghost" size="sm" className="gap-1.5">
                 <span className="hidden sm:inline font-medium">{displayName}</span>
                 <ChevronDown className="w-4 h-4" />
               </Button>

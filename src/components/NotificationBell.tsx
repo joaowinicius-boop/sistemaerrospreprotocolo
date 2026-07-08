@@ -50,7 +50,7 @@ const NotificationBell = ({ userId }: NotificationBellProps) => {
   return (
     <Popover open={open} onOpenChange={(o) => { setOpen(o); if (o) markAllRead(); }}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative text-primary-foreground hover:bg-primary-foreground/10">
+        <Button variant="ghost" size="icon" className="relative">
           <Bell className="w-5 h-5" />
           {unreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
