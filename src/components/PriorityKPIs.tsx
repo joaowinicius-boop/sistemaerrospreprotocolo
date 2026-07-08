@@ -50,7 +50,7 @@ export default function PriorityKPIs({ priorities }: PriorityKPIsProps) {
         <CardContent>
           <div className="flex items-baseline gap-2">
             <div className="text-2xl font-bold">{activePriorities}</div>
-            <span className="text-sm text-green-600 font-medium">/ {completedPriorities.length} concluídos</span>
+            <span className="text-sm text-success font-medium">/ {completedPriorities.length} concluídos</span>
           </div>
           <p className="text-xs text-muted-foreground">Total de processos a decorrer vs finalizados</p>
         </CardContent>

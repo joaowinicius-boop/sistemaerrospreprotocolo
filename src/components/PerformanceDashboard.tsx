@@ -24,6 +24,13 @@ const RESPONSIBLE_COLORS = [
   "hsl(60, 70%, 40%)",
 ];
 
+// Tooltip escuro (o default do recharts é uma caixa branca que destoa do tema)
+const TOOLTIP_PROPS = {
+  contentStyle: { background: "hsl(220 20% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: 8 },
+  itemStyle: { color: "hsl(220 10% 94%)" },
+  labelStyle: { color: "hsl(220 10% 55%)" },
+} as const;
+
 const SECTOR_CONFIG: Record<string, { members: string[]; color: string }> = {
   "Organização de Documentos": {
     members: ["JOAO", "FABIELEM", "JOSE", "HINGRID"],
@@ -104,7 +111,7 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => [value, "Registros"]} />
+                <Tooltip {...TOOLTIP_PROPS} formatter={(value: number) => [value, "Registros"]} />
                 <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
@@ -124,7 +131,7 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => [value, "Erros"]} />
+                <Tooltip {...TOOLTIP_PROPS} formatter={(value: number) => [value, "Erros"]} />
                 <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
@@ -139,9 +146,9 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
           {barData.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={barData} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
-                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} tickCount={5} />
-                <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
-                <Tooltip formatter={(value: number) => [value, "Erros identificados"]} />
+                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12, fill: "hsl(220 10% 55%)" }} tickCount={5} />
+                <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12, fill: "hsl(220 10% 55%)" }} />
+                <Tooltip {...TOOLTIP_PROPS} formatter={(value: number) => [value, "Erros identificados"]} />
                 <Bar dataKey="total" fill="hsl(210, 60%, 45%)" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -161,7 +168,7 @@ const PerformanceDashboard = ({ errors }: PerformanceDashboardProps) => {
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => [value, "Erros"]} />
+                <Tooltip {...TOOLTIP_PROPS} formatter={(value: number) => [value, "Erros"]} />
                 <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>

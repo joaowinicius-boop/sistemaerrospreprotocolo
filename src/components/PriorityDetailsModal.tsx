@@ -199,7 +199,7 @@ export default function PriorityDetailsModal({
             <div className="flex items-center gap-2">
               <DialogTitle className="text-xl">{priority.client_name}</DialogTitle>
               {priority.completed_at && (
-                <Badge className="bg-green-600 hover:bg-green-700">Concluído</Badge>
+                <Badge className="bg-success hover:bg-success/90 text-success-foreground">Concluído</Badge>
               )}
             </div>
             {canEdit && (
@@ -207,7 +207,7 @@ export default function PriorityDetailsModal({
                 <Button 
                   variant={priority.completed_at ? "outline" : "default"} 
                   size="sm" 
-                  className={priority.completed_at ? "" : "bg-green-600 hover:bg-green-700"}
+                  className={priority.completed_at ? "" : "bg-success hover:bg-success/90 text-success-foreground"}
                   onClick={handleToggleComplete}
                 >
                   <CheckCircle className="h-4 w-4 mr-1" />

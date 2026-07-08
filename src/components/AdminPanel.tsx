@@ -142,9 +142,9 @@ export default function AdminPanel({ currentUserId }: AdminPanelProps) {
                   <TableCell>{u.email}</TableCell>
                   <TableCell>
                     {u.active ? (
-                      <Badge variant="default" className="bg-green-600 hover:bg-green-700">Ativo</Badge>
+                      <Badge variant="default" className="bg-success hover:bg-success/90 text-success-foreground">Ativo</Badge>
                     ) : (
-                      <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-700 hover:bg-yellow-500/30">Aguardando</Badge>
+                      <Badge variant="secondary" className="bg-warning/15 text-warning hover:bg-warning/25">Aguardando</Badge>
                     )}
                   </TableCell>
                   <TableCell>
@@ -166,7 +166,7 @@ export default function AdminPanel({ currentUserId }: AdminPanelProps) {
                     <Button
                       variant={u.active ? "destructive" : "default"}
                       size="sm"
-                      className={!u.active ? "bg-green-600 hover:bg-green-700" : ""}
+                      className={!u.active ? "bg-success hover:bg-success/90 text-success-foreground" : ""}
                       onClick={() => toggleActiveStatus(u.user_id, u.active)}
                       disabled={u.user_id === currentUserId}
                     >

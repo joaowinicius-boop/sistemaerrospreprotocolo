@@ -42,7 +42,7 @@ export default function PriorityCard({ priority, teamMembers, isAdmin, currentUs
           <div className="flex justify-between items-start">
             <CardTitle className="text-lg font-semibold leading-snug">{priority.client_name}</CardTitle>
             {hasCompletedSteps && (
-              <div className="flex-shrink-0 flex items-center gap-1 ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full border border-green-200" title={`Última etapa concluída por: ${lastCompletedBy}`}>
+              <div className="flex-shrink-0 flex items-center gap-1 ml-2 px-2 py-0.5 bg-success/15 text-success text-xs rounded-full border border-success/30" title={`Última etapa concluída por: ${lastCompletedBy}`}>
                 <CheckSquare className="w-3 h-3" />
                 <span className="whitespace-nowrap">Etapa OK</span>
               </div>
